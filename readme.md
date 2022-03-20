@@ -2,7 +2,7 @@
 
 A collection of mods for Mount & Blade II: Bannerlord, by me.
 
-### BannerLord Banks
+### Banks
 
 As of e1.7.x you have a few ways of creating residual income:
 
@@ -11,13 +11,13 @@ As of e1.7.x you have a few ways of creating residual income:
 * Workshops
 * Trade Perk (Spring of Gold)
 
-Fiefs are only available mid/late game depending on your play style, require active management, and are vulnerable to looters, raids and sieges.
+*Fiefs* are only available mid/late game depending on your play style, require active management, and are vulnerable to looters, raids and sieges.
 
-Caravan parties seem to ignore all the skills and perks of your leader (max size 30) making them vulnerable to looters and enemy lords.
+*Caravan* parties seem to ignore all the skills and perks of your leader (max size 30) making them vulnerable to looters and enemy lords.
 
-Workshops are stuck at level 1, with income that is highly volatile given they need a steady supply of both materials and buyers. Not to mention that a rival kingdom can happy seize your workshop if you become an enemy for a hot second.
+*Workshops* are stuck at level 1, with income that is highly volatile given they need a steady supply of both materials and buyers. Not to mention that a rival kingdom can happy seize your workshop if you become an enemy for a hot second.
 
-Spring of Gold requires 250 trade, typically mid/late game and the interest (while amazing) caps out at 1,000 denars.
+*Spring of Gold* requires 250 trade, typically mid/late game and the interest (while amazing) caps out at 1,000 denars.
 
 IMHO whether you are an independent kingdom, mercenary or sworn vassal all your investments are unavoidably vulnerable to be undone at the snap of the AI's fingers. Surely there must be a better way!
 
