@@ -1,0 +1,26 @@
+<Module>
+    <Name value="BannerLord.Banks"/>
+    <Id value="BannerLord.Banks"/>
+    <Version value="v0.1.0"/>
+    <SingleplayerModule value="true"/>
+    <MultiplayerModule value="false"/>
+    <DependedModules>
+        <DependedModule Id="Native" DependentVersion="e1.7.1" Optional="false"/>
+        <DependedModule Id="SandBoxCore" DependentVersion="e1.7.1" Optional="false"/>
+        <DependedModule Id="Sandbox" DependentVersion="e1.7.1" Optional="false"/>
+        <DependedModule Id="CustomBattle" DependentVersion="e1.7.1" Optional="false"/>
+        <DependedModule Id="StoryMode" DependentVersion="e1.7.1" Optional="false" />
+    </DependedModules>
+    <SubModules>
+        <SubModule>
+            <Name value="BannerLord Banks"/>
+            <DLLName value="BannerLord.Banks.dll"/>
+            <SubModuleClassType value="BannerLord.Banks.SubModule"/>
+            <Tags>
+                <Tag key="DedicatedServerType" value="none" />
+                <Tag key="IsNoRenderModeElement" value="false" />
+            </Tags>
+        </SubModule>
+    </SubModules>
+    <Xmls/>
+</Module>
