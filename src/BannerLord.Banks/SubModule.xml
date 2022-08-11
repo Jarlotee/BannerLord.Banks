@@ -5,8 +5,8 @@
     <SingleplayerModule value="true"/>
     <MultiplayerModule value="false"/>
     <DependedModules>
-        <DependedModule Id="SandBoxCore" DependentVersion="e1.7.1" Optional="false"/>
-        <DependedModule Id="Sandbox" DependentVersion="e1.7.1" Optional="false"/>
+        <DependedModule Id="SandBoxCore" DependentVersion="e1.7.2" Optional="false"/>
+        <DependedModule Id="Sandbox" DependentVersion="e1.7.2" Optional="false"/>
     </DependedModules>
     <SubModules>
         <SubModule>

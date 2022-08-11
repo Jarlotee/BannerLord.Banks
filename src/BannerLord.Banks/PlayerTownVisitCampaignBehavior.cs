@@ -1,7 +1,9 @@
 using System;
 using Helpers;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.ComponentInterfaces;
 using TaleWorlds.CampaignSystem.GameMenus;
+using TaleWorlds.CampaignSystem.Settlements;
 
 namespace BannerLord.Banks
 {
