@@ -33,7 +33,12 @@
       <Reference Include="TaleWorlds.ObjectSystem">
         <HintPath>F:\Games\Mount &amp; Blade II Bannerlord 1.7.2\bin\Win64_Shipping_Client\TaleWorlds.ObjectSystem.dll</HintPath>
       </Reference>
+        <PackageReference Include="Bannerlord.MCM" Version="4.7.7" IncludeAssets="compile" />
     </ItemGroup>
+
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+      <Exec Command="copy /Y &quot;$(TargetDir)$(TargetFileName)&quot; &quot;F:\Games\Mount &amp; Blade II Bannerlord 1.7.2\Modules\Bank\bin\Win64_Shipping_Client&quot;" />
+    </Target>
 
 
 </Project>

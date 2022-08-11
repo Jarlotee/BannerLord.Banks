@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
 using Helpers;
+using Newtonsoft.Json;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.CampaignSystem.GameMenus;
 using TaleWorlds.CampaignSystem.Overlay;
-using TaleWorlds.Localization;
-using Newtonsoft.Json;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
-using TaleWorlds.CampaignSystem.CharacterDevelopment;
+using TaleWorlds.Localization;
 
 namespace BannerLord.Banks
 {
@@ -20,14 +20,23 @@ namespace BannerLord.Banks
         private const string BANK_INFO_BALANCE_TEXT_VARIABLE = "BANK_INFO_BALANCE";
         private const string BANK_INFO_WITHDRAW_TEXT_VARIABLE = "BANK_INFO_WITHDRAW";
 
-        private const float BASE_APY = 0.6f;
-        private const int DAYS_IN_A_YEAR = 120;
-        private const int PROSPEROUS_TOWN = 6000;
-        private const float WITHDRAW_FEE = 0.1f;
-        private const float TRADE_SKILL_PROFIT_MULTIPLIER = 0.1f;
-
         private const string PORTFOLIO_DATA_KEY = "BannerLord.Banks.HeroPortfolios";
         private Dictionary<string, HeroPortfolio> _heroPortfolios;
+
+        public float BASE_APY = MCMUISettings.Instance.TradeXP;
+        public int DAYS_IN_A_YEAR = MCMUISettings.Instance.DaysPerYear;
+        public int PROSPEROUS_TOWN = MCMUISettings.Instance.ProsperousTown;
+        public float WITHDRAW_FEE = MCMUISettings.Instance.WithdrawFee;
+        public float TRADE_SKILL_PROFIT_MULTIPLIER = MCMUISettings.Instance.TradeXP;
+
+        public void UpdateVariables()
+        {
+            BASE_APY = MCMUISettings.Instance.TradeXP;
+            DAYS_IN_A_YEAR = MCMUISettings.Instance.DaysPerYear;
+            PROSPEROUS_TOWN = MCMUISettings.Instance.ProsperousTown;
+            WITHDRAW_FEE = MCMUISettings.Instance.WithdrawFee;
+            TRADE_SKILL_PROFIT_MULTIPLIER = MCMUISettings.Instance.TradeXP;
+        }
 
         public BankCampaignBehavior()
         {
@@ -356,16 +365,18 @@ namespace BannerLord.Banks
 
         private void HandleDailyTickClanEvent(Clan clan)
         {
+            UpdateVariables();
+
             var dailyInterest = new ExplainedNumber();
 
             CalculateClanBankInterest(clan, ref dailyInterest);
 
             SkillLevelingManager.OnTradeProfitMade(clan.Leader, (int)Math.Round(dailyInterest.ResultNumber * TRADE_SKILL_PROFIT_MULTIPLIER));
         }
-        
+
         public void CalculateClanBankInterest(Clan clan, ref ExplainedNumber goldChange)
         {
-            if(clan.Leader is null)
+            if (clan.Leader is null)
             {
                 return;
             }
@@ -373,7 +384,7 @@ namespace BannerLord.Banks
             var heroId = clan.Leader.Id.ToString();
             var hasPortfolio = _heroPortfolios.ContainsKey(heroId);
 
-            if(!hasPortfolio)
+            if (!hasPortfolio)
             {
                 return;
             }
@@ -393,7 +404,7 @@ namespace BannerLord.Banks
                 }
             }
         }
-    
+
         protected void AddTownBankWithdrawMenu(CampaignGameStarter starter)
         {
             // add bank withdraw menu
@@ -466,7 +477,7 @@ namespace BannerLord.Banks
         {
             MBTextManager.SetTextVariable(
                 BANK_INFO_WITHDRAW_TEXT_VARIABLE,
-                new TextObject($"The withdrawl fee is currently {WITHDRAW_FEE*100:F0}%")
+                new TextObject($"The withdrawl fee is currently {WITHDRAW_FEE * 100:F0}%")
             );
         }
 
