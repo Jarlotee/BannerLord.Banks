@@ -1,6 +1,5 @@
-## BannerLord Mods
-
-A collection of mods for Mount & Blade II: Bannerlord, by me.
+Updated version.
+TODO: Fix text in Towns to reflect changes done in the config.
 
 ### Banks
 
