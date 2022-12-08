@@ -5,6 +5,11 @@
         <PlatformTarget>x64</PlatformTarget>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <GamePath>\Program Files (x86)\GOG Galaxy\Games\Mount &amp; Blade II Bannerlord</GamePath>
+        <ModuleName>BannerLord.Banks</ModuleName>
+    </PropertyGroup>
+
     <ItemGroup>
         <Content Include="*.xml">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -13,27 +18,38 @@
 
     <ItemGroup>
         <Reference Include="TaleWorlds.Core">
-            <HintPath>\Program Files (x86)\GOG Galaxy\Games\Mount &amp; Blade II Bannerlord\bin\Win64_Shipping_Client\TaleWorlds.Core.dll</HintPath>
+            <HintPath>$(GamePath)\bin\Win64_Shipping_Client\TaleWorlds.Core.dll</HintPath>
+            <Private>false</Private>
         </Reference>
         <Reference Include="TaleWorlds.Localization">
-            <HintPath>\Program Files (x86)\GOG Galaxy\Games\Mount &amp; Blade II Bannerlord\bin\Win64_Shipping_Client\TaleWorlds.Localization.dll</HintPath>
+            <HintPath>$(GamePath)\bin\Win64_Shipping_Client\TaleWorlds.Localization.dll</HintPath>
+            <Private>false</Private>
         </Reference>
         <Reference Include="TaleWorlds.MountAndBlade">
-            <HintPath>\Program Files (x86)\GOG Galaxy\Games\Mount &amp; Blade II Bannerlord\bin\Win64_Shipping_Client\TaleWorlds.MountAndBlade.dll</HintPath>
+            <HintPath>$(GamePath)\bin\Win64_Shipping_Client\TaleWorlds.MountAndBlade.dll</HintPath>
+            <Private>false</Private>
         </Reference>
         <Reference Include="TaleWorlds.DotNet">
-            <HintPath>\Program Files (x86)\GOG Galaxy\Games\Mount &amp; Blade II Bannerlord\bin\Win64_Shipping_Client\TaleWorlds.DotNet.dll</HintPath>
+            <HintPath>$(GamePath)\bin\Win64_Shipping_Client\TaleWorlds.DotNet.dll</HintPath>
+            <Private>false</Private>
         </Reference>
         <Reference Include="TaleWorlds.CampaignSystem">
-            <HintPath>\Program Files (x86)\GOG Galaxy\Games\Mount &amp; Blade II Bannerlord\bin\Win64_Shipping_Client\TaleWorlds.CampaignSystem.dll</HintPath>
+            <HintPath>$(GamePath)\bin\Win64_Shipping_Client\TaleWorlds.CampaignSystem.dll</HintPath>
+            <Private>false</Private>
         </Reference>
         <Reference Include="TaleWorlds.ObjectSystem">
-            <HintPath>\Program Files (x86)\GOG Galaxy\Games\Mount &amp; Blade II Bannerlord\bin\Win64_Shipping_Client\TaleWorlds.ObjectSystem.dll</HintPath>
+            <HintPath>$(GamePath)\bin\Win64_Shipping_Client\TaleWorlds.ObjectSystem.dll</HintPath>
+            <Private>false</Private>
         </Reference>
         <Reference Include="Newtonsoft.Json">
-            <HintPath>\Program Files (x86)\GOG Galaxy\Games\Mount &amp; Blade II Bannerlord\bin\Win64_Shipping_Client\Newtonsoft.Json.dll</HintPath>
+            <HintPath>$(GamePath)\bin\Win64_Shipping_Client\Newtonsoft.Json.dll</HintPath>
+            <Private>false</Private>
         </Reference>
     </ItemGroup>
 
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+        <Copy SourceFiles="$(TargetDir)/SubModule.xml" DestinationFolder="$(GamePath)\Modules\$(ModuleName)\" />
+        <Copy SourceFiles="$(TargetDir)$(TargetFileName)" DestinationFolder="$(GamePath)\Modules\$(ModuleName)\bin\Win64_Shipping_Client" />
+    </Target>
 
 </Project>

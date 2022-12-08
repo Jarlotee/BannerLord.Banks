@@ -6,7 +6,9 @@ using TaleWorlds.CampaignSystem.GameMenus;
 using TaleWorlds.CampaignSystem.Overlay;
 using TaleWorlds.Localization;
 using Newtonsoft.Json;
-using TaleWorlds.CampaignSystem.CharacterDevelopment.Managers;
+using TaleWorlds.CampaignSystem.Party;
+using TaleWorlds.CampaignSystem.Settlements;
+using TaleWorlds.CampaignSystem.CharacterDevelopment;
 
 namespace BannerLord.Banks
 {
