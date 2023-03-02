@@ -1,8 +1,4 @@
-## BannerLord Mods
-
-A collection of mods for Mount & Blade II: Bannerlord, by me.
-
-### Banks
+### BannerLord Banks
 
 As of 1.1.x you have a few ways of creating residual income:
 
@@ -31,11 +27,9 @@ BannerLord Banks creates a moneylender in each city that will happily allow you 
 
 The game currently has 30 days per season for a total of 120 game days per year. 
 
-If we look at the perk `Font of Gold` and do some math (1% interest per day) we are looking at an annual yield of 120%. No one in their right mind would take out a loan (even from your charming lord) at a rate of 120% APY.
-
 > So what rate should we target? 
 
-If we assume that a VERY prosperous city is at or above 6000 prosperity and you have an investment in a city then you can expect to get the full 60% APY or about 0.5% daily interest. Half as good as the perk `Font of Gold`.
+If we assume that a VERY prosperous city is at or above 6000 prosperity and you have an investment in a city then you can expect to get the full 60% APY or about 0.5% daily interest.
 
 > Vulnerabilities
 
