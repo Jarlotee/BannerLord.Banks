@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.CharacterDevelopment;
+using System.Linq;
 
 namespace BannerLord.Banks
 {
@@ -24,14 +25,15 @@ namespace BannerLord.Banks
         private const int DAYS_IN_A_YEAR = 120;
         private const int PROSPEROUS_TOWN = 6000;
         private const float WITHDRAW_FEE = 0.1f;
-        private const float TRADE_SKILL_PROFIT_MULTIPLIER = 0.1f;
+        private const float TRADE_SKILL_PROFIT_MULTIPLIER = 0.15f;
 
-        private const string PORTFOLIO_DATA_KEY = "BannerLord.Banks.HeroPortfolios";
-        private Dictionary<string, HeroPortfolio> _heroPortfolios;
+        private const string CLAN_PORTFOLIO_DATA_KEY = "BannerLord.Banks.ClanPortfolios";
+
+        private List<Portfolio> _portfolios;
 
         public BankCampaignBehavior()
         {
-            _heroPortfolios = new Dictionary<string, HeroPortfolio>();
+            _portfolios = new List<Portfolio>();
         }
 
         public override void RegisterEvents()
@@ -49,18 +51,22 @@ namespace BannerLord.Banks
 
         public override void SyncData(IDataStore dataStore)
         {
-            var json = string.Empty;
-
             if (dataStore.IsLoading)
             {
-                dataStore.SyncData(PORTFOLIO_DATA_KEY, ref json);
-                _heroPortfolios = JsonConvert.DeserializeObject<Dictionary<string, HeroPortfolio>>(json);
+                try
+                {
+                    var clanJson = string.Empty;
+
+                    dataStore.SyncData(CLAN_PORTFOLIO_DATA_KEY, ref clanJson);
+                    _portfolios = JsonConvert.DeserializeObject<List<Portfolio>>(clanJson);
+                }
+                catch (System.Exception) { }
             }
 
             if (dataStore.IsSaving)
             {
-                json = JsonConvert.SerializeObject(_heroPortfolios);
-                dataStore.SyncData(PORTFOLIO_DATA_KEY, ref json);
+                var clanJson = JsonConvert.SerializeObject(_portfolios);
+                dataStore.SyncData(CLAN_PORTFOLIO_DATA_KEY, ref clanJson);
             }
         }
 
@@ -119,46 +125,49 @@ namespace BannerLord.Banks
             MBTextManager.SetTextVariable(BANK_INFO_TEXT_VARIABLE, $"{{{BANK_INFO_FLAVOR_TEXT_VARIABLE}}}\n \n{{{BANK_INFO_APY_TEXT_VARIABLE}}}\n \n{{{BANK_INFO_BALANCE_TEXT_VARIABLE}}}", false);
         }
 
+
+        private Portfolio GetPortfolio(Clan clan, Settlement settlement)
+        {
+            var clanId = clan.Id.ToString();
+            var settlementId = settlement.Id.ToString();
+
+            return _portfolios
+                .Where(p => p.ClanId.Equals(clanId, StringComparison.OrdinalIgnoreCase))
+                .Where(p => p.SettlementId.Equals(settlementId, StringComparison.OrdinalIgnoreCase))
+                .FirstOrDefault();
+        }
+
         private void HandleFlavorText()
         {
-            var heroId = PartyBase.MainParty.LeaderHero.Id.ToString();
-            var settlementId = Settlement.CurrentSettlement.Id.ToString();
+            var portfolio = GetPortfolio(PartyBase.MainParty.LeaderHero.Clan, Settlement.CurrentSettlement);
 
-            var hasPortfolio = _heroPortfolios.ContainsKey(heroId);
-            var hasPortfolioInSettlement = hasPortfolio && _heroPortfolios[heroId].PortFoliosBySettlementId.ContainsKey(settlementId);
-
-            if (!hasPortfolioInSettlement)
+            if (portfolio is null)
             {
                 MBTextManager.SetTextVariable(
                     BANK_INFO_FLAVOR_TEXT_VARIABLE,
                     new TextObject("After waiting an hour you are finally led to the moneylenders office.")
                 );
             }
+            else if (portfolio.Denars < 10000)
+            {
+                MBTextManager.SetTextVariable(
+                    BANK_INFO_FLAVOR_TEXT_VARIABLE,
+                    new TextObject("After waiting a few minutes you are led the moneylenders office.")
+                );
+            }
+            else if (portfolio.Denars < 100000)
+            {
+                MBTextManager.SetTextVariable(
+                    BANK_INFO_FLAVOR_TEXT_VARIABLE,
+                    new TextObject($"You are immediately ushered into the office.")
+                );
+            }
             else
             {
-                var portfolioDenars = _heroPortfolios[heroId].PortFoliosBySettlementId[settlementId];
-
-                if (portfolioDenars < 10000)
-                {
-                    MBTextManager.SetTextVariable(
-                        BANK_INFO_FLAVOR_TEXT_VARIABLE,
-                        new TextObject("After waiting a few minutes you are led the moneylenders office.")
-                    );
-                }
-                else if (portfolioDenars < 100000)
-                {
-                    MBTextManager.SetTextVariable(
-                        BANK_INFO_FLAVOR_TEXT_VARIABLE,
-                        new TextObject($"You are immediately ushered into the office.")
-                    );
-                }
-                else
-                {
-                    MBTextManager.SetTextVariable(
-                        BANK_INFO_FLAVOR_TEXT_VARIABLE,
-                        new TextObject($"The moneylender greets you personally.")
-                    );
-                }
+                MBTextManager.SetTextVariable(
+                    BANK_INFO_FLAVOR_TEXT_VARIABLE,
+                    new TextObject($"The moneylender greets you personally.")
+                );
             }
         }
 
@@ -182,13 +191,9 @@ namespace BannerLord.Banks
 
         private void HandleAccountBalanceText()
         {
-            var heroId = PartyBase.MainParty.LeaderHero.Id.ToString();
-            var settlementId = Settlement.CurrentSettlement.Id.ToString();
+            var portfolio = GetPortfolio(PartyBase.MainParty.LeaderHero.Clan, Settlement.CurrentSettlement);
 
-            var hasPortfolio = _heroPortfolios.ContainsKey(heroId);
-            var hasPortfolioInSettlement = hasPortfolio && _heroPortfolios[heroId].PortFoliosBySettlementId.ContainsKey(settlementId);
-
-            if (!hasPortfolioInSettlement)
+            if (portfolio is null)
             {
                 MBTextManager.SetTextVariable(
                     BANK_INFO_BALANCE_TEXT_VARIABLE,
@@ -197,11 +202,9 @@ namespace BannerLord.Banks
             }
             else
             {
-                var portfolioDenars = _heroPortfolios[heroId].PortFoliosBySettlementId[settlementId];
-
                 MBTextManager.SetTextVariable(
                     BANK_INFO_BALANCE_TEXT_VARIABLE,
-                    new TextObject($"Account Balance:\n{portfolioDenars:N0} denars")
+                    new TextObject($"Account Balance:\n{portfolio.Denars:N0} denars")
                 );
             }
         }
@@ -328,27 +331,25 @@ namespace BannerLord.Banks
 
         private void DepositDenars(int denars)
         {
-            var heroId = PartyBase.MainParty.LeaderHero.Id.ToString();
-            var settlementId = Settlement.CurrentSettlement.Id.ToString();
-
-            var hasPortfolio = _heroPortfolios.ContainsKey(heroId);
-            var hasPortfolioInSettlement = hasPortfolio && _heroPortfolios[heroId].PortFoliosBySettlementId.ContainsKey(settlementId);
+            var portfolio = GetPortfolio(PartyBase.MainParty.LeaderHero.Clan, Settlement.CurrentSettlement);
 
             // just in case the UI didn't detect it
             if (PartyBase.MainParty.LeaderHero.Gold >= denars)
             {
-                if (!hasPortfolio)
+                if (portfolio is null)
                 {
-                    _heroPortfolios.Add(heroId, new HeroPortfolio());
-                }
+                    portfolio = new Portfolio
+                    {
+                        ClanId = PartyBase.MainParty.LeaderHero.Clan.Id.ToString(),
+                        SettlementId = Settlement.CurrentSettlement.Id.ToString(),
+                        Denars = 0
+                    };
+                    _portfolios.Add(portfolio);
 
-                if (!hasPortfolioInSettlement)
-                {
-                    _heroPortfolios[heroId].PortFoliosBySettlementId.Add(settlementId, 0);
                 }
 
                 PartyBase.MainParty.LeaderHero.ChangeHeroGold(-denars);
-                _heroPortfolios[heroId].PortFoliosBySettlementId[settlementId] += denars;
+                portfolio.Denars += denars;
             }
 
             GameMenu.SwitchToMenu("town_bank_deposit");
@@ -362,38 +363,39 @@ namespace BannerLord.Banks
 
             SkillLevelingManager.OnTradeProfitMade(clan.Leader, (int)Math.Round(dailyInterest.ResultNumber * TRADE_SKILL_PROFIT_MULTIPLIER));
         }
-        
+
         public void CalculateClanBankInterest(Clan clan, ref ExplainedNumber goldChange)
         {
-            if(clan.Leader is null)
+            if (clan.Leader is null)
             {
                 return;
             }
 
-            var heroId = clan.Leader.Id.ToString();
-            var hasPortfolio = _heroPortfolios.ContainsKey(heroId);
+            var clanPortfolios = _portfolios
+                .Where(p => p.ClanId.Equals(clan.Leader.Clan.Id.ToString(), StringComparison.OrdinalIgnoreCase))
+                .ToList();
 
-            if(!hasPortfolio)
+            if (clanPortfolios.Count == 0)
             {
                 return;
             }
 
-            foreach (var townPortfolio in _heroPortfolios[heroId].PortFoliosBySettlementId)
+            foreach (var portfolio in clanPortfolios)
             {
-                if (townPortfolio.Value > 0)
+                if (portfolio.Denars > 0)
                 {
-                    var settlement = Settlement.FindFirst(s => s.Id.ToString().Equals(townPortfolio.Key, StringComparison.OrdinalIgnoreCase));
+                    var settlement = Settlement.FindFirst(s => s.Id.ToString().Equals(portfolio.SettlementId, StringComparison.OrdinalIgnoreCase));
 
                     if (settlement != null)
                     {
                         var dpy = CalculateDailyInterest(settlement);
-                        var interest = (int)Math.Round(dpy * townPortfolio.Value);
+                        var interest = (int)Math.Round(dpy * portfolio.Denars);
                         goldChange.Add(interest, new TextObject($"Bank Interest from {settlement.Name}"));
                     }
                 }
             }
         }
-    
+
         protected void AddTownBankWithdrawMenu(CampaignGameStarter starter)
         {
             // add bank withdraw menu
@@ -444,6 +446,16 @@ namespace BannerLord.Banks
                 isRepeatable: true
             );
 
+            // add 1,000,000 denar withdraw option
+            starter.AddGameMenuOption(
+                "town_bank_withdraw",
+                "town_bank_withdraw_all_denar",
+                $"Withdraw all denar",
+                new GameMenuOption.OnConditionDelegate(this.HandleTownBankWithdrawDenarMenuOptions_All),
+                (args => this.WithdrawDenars(Int32.MaxValue)),
+                isRepeatable: true
+            );
+
 
             // add back to bank menu to deposit menu
             starter.AddGameMenuOption(
@@ -466,85 +478,83 @@ namespace BannerLord.Banks
         {
             MBTextManager.SetTextVariable(
                 BANK_INFO_WITHDRAW_TEXT_VARIABLE,
-                new TextObject($"The withdrawl fee is currently {WITHDRAW_FEE*100:F0}%")
+                new TextObject($"The withdrawl fee is currently {WITHDRAW_FEE * 100:F0}%")
             );
         }
 
         private bool HandleTownBankWithdrawDenarMenuOptions_1000(MenuCallbackArgs args)
         {
             args.optionLeaveType = GameMenuOption.LeaveType.Continue;
-            var hasEnoughMoney = GetAccountBalance(Settlement.CurrentSettlement) >= 1000;
+            var hasEnoughMoney = GetAccountBalance() >= 1000;
             return MenuHelper.SetOptionProperties(args, hasEnoughMoney, !hasEnoughMoney, new TextObject("Insufficient denars in account"));
         }
 
         private bool HandleTownBankWithdrawDenarMenuOptions_10000(MenuCallbackArgs args)
         {
             args.optionLeaveType = GameMenuOption.LeaveType.Continue;
-            var hasEnoughMoney = GetAccountBalance(Settlement.CurrentSettlement) >= 10000;
+            var hasEnoughMoney = GetAccountBalance() >= 10000;
             return MenuHelper.SetOptionProperties(args, hasEnoughMoney, !hasEnoughMoney, new TextObject("Insufficient denars in account"));
         }
 
         private bool HandleTownBankWithdrawDenarMenuOptions_100000(MenuCallbackArgs args)
         {
             args.optionLeaveType = GameMenuOption.LeaveType.Continue;
-            var hasEnoughMoney = GetAccountBalance(Settlement.CurrentSettlement) >= 100000;
+            var hasEnoughMoney = GetAccountBalance() >= 100000;
             return MenuHelper.SetOptionProperties(args, hasEnoughMoney, !hasEnoughMoney, new TextObject("Insufficient denars in account"));
         }
 
         private bool HandleTownBankWithdrawDenarMenuOptions_1000000(MenuCallbackArgs args)
         {
             args.optionLeaveType = GameMenuOption.LeaveType.Continue;
-            var hasEnoughMoney = GetAccountBalance(Settlement.CurrentSettlement) >= 1000000;
+            var hasEnoughMoney = GetAccountBalance() >= 1000000;
             return MenuHelper.SetOptionProperties(args, hasEnoughMoney, !hasEnoughMoney, new TextObject("Insufficient denars in account"));
         }
 
-        private float GetAccountBalance(Settlement settlement)
+        private bool HandleTownBankWithdrawDenarMenuOptions_All(MenuCallbackArgs args)
         {
-            var heroId = PartyBase.MainParty.LeaderHero.Id.ToString();
-            var settlementId = settlement.Id.ToString();
+            args.optionLeaveType = GameMenuOption.LeaveType.Continue;
+            var hasEnoughMoney = GetAccountBalance() > 0;
+            return MenuHelper.SetOptionProperties(args, hasEnoughMoney, !hasEnoughMoney, new TextObject("There are no denars to withdraw"));
+        }
 
-            var hasPortfolio = _heroPortfolios.ContainsKey(heroId);
-            var hasPortfolioInSettlement = hasPortfolio && _heroPortfolios[heroId].PortFoliosBySettlementId.ContainsKey(settlementId);
+        private float GetAccountBalance()
+        {
+            var portfolio = GetPortfolio(PartyBase.MainParty.LeaderHero.Clan, Settlement.CurrentSettlement);
 
-            if (!hasPortfolioInSettlement)
+            if (portfolio is null)
             {
                 return 0;
             }
 
-            return _heroPortfolios[heroId].PortFoliosBySettlementId[settlementId];
+            return portfolio.Denars;
         }
 
         private void WithdrawDenars(int denars)
         {
-            var heroId = PartyBase.MainParty.LeaderHero.Id.ToString();
-            var settlementId = Settlement.CurrentSettlement.Id.ToString();
+            var portfolio = GetPortfolio(PartyBase.MainParty.LeaderHero.Clan, Settlement.CurrentSettlement);
 
-            var hasPortfolio = _heroPortfolios.ContainsKey(heroId);
-            var hasPortfolioInSettlement = hasPortfolio && _heroPortfolios[heroId].PortFoliosBySettlementId.ContainsKey(settlementId);
-
-            if (!hasPortfolioInSettlement)
+            if (portfolio is null)
             {
                 return;
             }
 
-            if (_heroPortfolios[heroId].PortFoliosBySettlementId[settlementId] >= denars)
+            denars = Math.Min((int)portfolio.Denars, denars);
+
+            if (portfolio.Denars >= denars)
             {
                 var fee = (int)Math.Round(denars * WITHDRAW_FEE);
                 PartyBase.MainParty.LeaderHero.ChangeHeroGold(denars - fee);
-                _heroPortfolios[heroId].PortFoliosBySettlementId[settlementId] -= denars;
+                portfolio.Denars -= denars;
             }
 
             GameMenu.SwitchToMenu("town_bank_withdraw");
         }
     }
 
-    public class HeroPortfolio
+    public class Portfolio
     {
-        public Dictionary<string, float> PortFoliosBySettlementId { get; set; }
-
-        public HeroPortfolio()
-        {
-            PortFoliosBySettlementId = new Dictionary<string, float>();
-        }
+        public string ClanId { get; set; }
+        public string SettlementId { get; set; }
+        public float Denars { get; set; }
     }
 }

@@ -5,7 +5,7 @@ namespace BannerLord.Banks
 {
     public class EnhancedClanFinanceModel : DefaultClanFinanceModel
     {
-        public override ExplainedNumber CalculateClanIncome(Clan clan, bool includeDescriptions = false, bool applyWithdrawals = false)
+        public override ExplainedNumber CalculateClanIncome(Clan clan, bool includeDescriptions = false, bool applyWithdrawals = false, bool includeDetails = false)
         {
             var baseNumber = base.CalculateClanIncome(clan, includeDescriptions, applyWithdrawals);
             AddBankIncome(clan, ref baseNumber);
@@ -13,7 +13,7 @@ namespace BannerLord.Banks
             return baseNumber;
         }
 
-        public override ExplainedNumber CalculateClanGoldChange(Clan clan, bool includeDescriptions = false, bool applyWithdrawals = false)
+        public override ExplainedNumber CalculateClanGoldChange(Clan clan, bool includeDescriptions = false, bool applyWithdrawals = false, bool includeDetails = false)
         {
             var baseNumber = base.CalculateClanGoldChange(clan, includeDescriptions, applyWithdrawals);
             AddBankIncome(clan, ref baseNumber);

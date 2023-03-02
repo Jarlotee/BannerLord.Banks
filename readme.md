@@ -4,7 +4,7 @@ A collection of mods for Mount & Blade II: Bannerlord, by me.
 
 ### Banks
 
-As of e1.7.x you have a few ways of creating residual income:
+As of 1.1.x you have a few ways of creating residual income:
 
 * Fiefs
 * Caravans
@@ -50,7 +50,7 @@ Your investment cannot be:
 * *Stolen* by your spouse
 * *Spent* by your clan members
 
-Withdrawing your money can be done at any time for a modest fee (currently 5%).
+Withdrawing your money can be done at any time for a modest fee (currently 10%).
 
 To be clear, a well-functioning caravan, trade shop or perk WILL have better returns. 
 
@@ -58,4 +58,4 @@ I for one would rather pay my hard-working army with a safe/steady income from m
 
 In addition, it felt super dumb that you are only a good trader/investor if you are actively slogging mules from town to town.
 
-Each day a portion (currently 1%) of your earned interest will count as trade income, giving you a passive improvement to your trade skill.
+Each day a portion (currently 15%) of your earned interest will count as trade income, giving you a passive improvement to your trade skill.

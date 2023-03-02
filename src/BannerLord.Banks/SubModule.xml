@@ -1,12 +1,12 @@
 <Module>
     <Name value="BannerLord.Banks"/>
     <Id value="BannerLord.Banks"/>
-    <Version value="v1.0.2"/>
+    <Version value="v1.1.0"/>
     <SingleplayerModule value="true"/>
     <MultiplayerModule value="false"/>
     <DependedModules>
-        <DependedModule Id="SandBoxCore" DependentVersion="v1.0.2" Optional="false"/>
-        <DependedModule Id="Sandbox" DependentVersion="v1.0.2" Optional="false"/>
+        <DependedModule Id="SandBoxCore" DependentVersion="v1.1.0" Optional="false"/>
+        <DependedModule Id="Sandbox" DependentVersion="v1.1.0" Optional="false"/>
     </DependedModules>
     <SubModules>
         <SubModule>
