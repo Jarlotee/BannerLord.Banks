@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <GamePath>\Program Files (x86)\GOG Galaxy\Games\Mount &amp; Blade II Bannerlord</GamePath>
+        <GamePath>\home\jlotti\Games\gog\mount-blade-ii-bannerlord\drive_c\mb_ii_bannerlord</GamePath>
         <ModuleName>BannerLord.Banks</ModuleName>
     </PropertyGroup>
 

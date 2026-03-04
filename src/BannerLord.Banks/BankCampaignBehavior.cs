@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using Helpers;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.GameMenus;
-using TaleWorlds.CampaignSystem.Overlay;
 using TaleWorlds.Localization;
 using Newtonsoft.Json;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using System.Linq;
+using static TaleWorlds.CampaignSystem.GameMenus.GameMenu;
 
 namespace BannerLord.Banks
 {
@@ -40,12 +40,12 @@ namespace BannerLord.Banks
         {
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(
                 this,
-                new Action<CampaignGameStarter>(this.HandleSessionLaunchedEvent)
+                new Action<CampaignGameStarter>(HandleSessionLaunchedEvent)
             );
 
             CampaignEvents.DailyTickClanEvent.AddNonSerializedListener(
                 this,
-                new Action<Clan>(this.HandleDailyTickClanEvent)
+                new Action<Clan>(HandleDailyTickClanEvent)
             );
         }
 
@@ -60,7 +60,7 @@ namespace BannerLord.Banks
                     dataStore.SyncData(CLAN_PORTFOLIO_DATA_KEY, ref clanJson);
                     _portfolios = JsonConvert.DeserializeObject<List<Portfolio>>(clanJson);
                 }
-                catch (System.Exception) { }
+                catch (Exception) { }
             }
 
             if (dataStore.IsSaving)
@@ -83,8 +83,8 @@ namespace BannerLord.Banks
             starter.AddGameMenu(
                 "town_bank",
                 $"{{{BANK_INFO_TEXT_VARIABLE}}}",
-                new OnInitDelegate(this.HandleTownBankGameMenuInit),
-                GameOverlays.MenuOverlayType.SettlementWithCharacters
+                new OnInitDelegate(HandleTownBankGameMenuInit),
+                MenuOverlayType.SettlementWithCharacters
             );
 
             // add deposit to town bank menu
@@ -92,8 +92,8 @@ namespace BannerLord.Banks
                 "town_bank",
                 "town_bank_deposit",
                 "Make a deposit",
-                new GameMenuOption.OnConditionDelegate(BankCampaignBehavior.HandleTownBankDepositMenuOptions),
-                (args => GameMenu.SwitchToMenu("town_bank_deposit"))
+                new GameMenuOption.OnConditionDelegate(HandleTownBankDepositMenuOptions),
+                args => SwitchToMenu("town_bank_deposit")
             );
 
             // add withdaw to town bank menu
@@ -101,8 +101,8 @@ namespace BannerLord.Banks
                 "town_bank",
                 "town_bank_withdraw",
                 "Make a withdrawl",
-                new GameMenuOption.OnConditionDelegate(BankCampaignBehavior.HandleTownBankWithdrawMenuOptions),
-                (args => GameMenu.SwitchToMenu("town_bank_withdraw"))
+                new GameMenuOption.OnConditionDelegate(HandleTownBankWithdrawMenuOptions),
+                args => SwitchToMenu("town_bank_withdraw")
             );
 
             // add back to town bank menu
@@ -110,8 +110,8 @@ namespace BannerLord.Banks
                 "town_bank",
                 "town_bank_back",
                 "Back to town center",
-                new GameMenuOption.OnConditionDelegate(BankCampaignBehavior.HandleBackMenuOptions),
-                (args => GameMenu.SwitchToMenu("town")),
+                new GameMenuOption.OnConditionDelegate(HandleBackMenuOptions),
+                args => SwitchToMenu("town"),
                 true
             );
         }
@@ -183,7 +183,7 @@ namespace BannerLord.Banks
         private float CalculateDailyInterest(Settlement settlement)
         {
             var baseInterestRate = BASE_APY / DAYS_IN_A_YEAR;
-            var prosperityAdjustment = settlement.Prosperity / PROSPEROUS_TOWN;
+            var prosperityAdjustment = settlement.Town.Prosperity / PROSPEROUS_TOWN;
             var adjustedInterestRate = baseInterestRate * prosperityAdjustment;
 
             return adjustedInterestRate;
@@ -233,8 +233,8 @@ namespace BannerLord.Banks
             starter.AddGameMenu(
                 "town_bank_deposit",
                 $"{{{BANK_INFO_BALANCE_TEXT_VARIABLE}}}",
-                new OnInitDelegate(this.HandleTownBankDepositGameMenuInit),
-                GameOverlays.MenuOverlayType.SettlementWithCharacters
+                new OnInitDelegate(HandleTownBankDepositGameMenuInit),
+                MenuOverlayType.SettlementWithCharacters
             );
 
             // add 1000 denar deposit option
@@ -243,7 +243,7 @@ namespace BannerLord.Banks
                 "town_bank_deposit_1000_denar",
                 $"Deposit {1000:N0} denar",
                 new GameMenuOption.OnConditionDelegate(this.HandleTownBankDepositDenarMenuOptions_1000),
-                (args => this.DepositDenars(1000)),
+                args => DepositDenars(1000),
                 isRepeatable: true
             );
 
@@ -253,7 +253,7 @@ namespace BannerLord.Banks
                 "town_bank_deposit_10000_denar",
                 $"Deposit {10000:N0} denar",
                 new GameMenuOption.OnConditionDelegate(this.HandleTownBankDepositDenarMenuOptions_10000),
-                (args => this.DepositDenars(10000)),
+                args => this.DepositDenars(10000),
                 isRepeatable: true
             );
 
@@ -263,7 +263,7 @@ namespace BannerLord.Banks
                 "town_bank_deposit_100000_denar",
                 $"Deposit {100000:N0} denar",
                 new GameMenuOption.OnConditionDelegate(this.HandleTownBankDepositDenarMenuOptions_100000),
-                (args => this.DepositDenars(100000)),
+                args => this.DepositDenars(100000),
                 isRepeatable: true
             );
 
@@ -273,7 +273,7 @@ namespace BannerLord.Banks
                 "town_bank_deposit_1000000_denar",
                 $"Deposit {1000000:N0} denar",
                 new GameMenuOption.OnConditionDelegate(this.HandleTownBankDepositDenarMenuOptions_1000000),
-                (args => this.DepositDenars(1000000)),
+                args => this.DepositDenars(1000000),
                 isRepeatable: true
             );
 
@@ -283,7 +283,7 @@ namespace BannerLord.Banks
                 "town_bank_deposit_back",
                 "Back to bank",
                 new GameMenuOption.OnConditionDelegate(BankCampaignBehavior.HandleBackMenuOptions),
-                (args => GameMenu.SwitchToMenu("town_bank")),
+                args => GameMenu.SwitchToMenu("town_bank"),
                 true
             );
         }
@@ -403,7 +403,7 @@ namespace BannerLord.Banks
                 "town_bank_withdraw",
                 $"{{{BANK_INFO_WITHDRAW_TEXT_VARIABLE}}}\n \n{{{BANK_INFO_BALANCE_TEXT_VARIABLE}}}",
                 new OnInitDelegate(this.HandleTownBankWithdrawGameMenuInit),
-                GameOverlays.MenuOverlayType.SettlementWithCharacters
+                MenuOverlayType.SettlementWithCharacters
             );
 
             // add 1000 denar withdraw option
@@ -412,7 +412,7 @@ namespace BannerLord.Banks
                 "town_bank_withdraw_1000_denar",
                 $"Withdraw {1000:N0} denar",
                 new GameMenuOption.OnConditionDelegate(this.HandleTownBankWithdrawDenarMenuOptions_1000),
-                (args => this.WithdrawDenars(1000)),
+                args => this.WithdrawDenars(1000),
                 isRepeatable: true
             );
 
@@ -422,7 +422,7 @@ namespace BannerLord.Banks
                 "town_bank_withdraw_10000_denar",
                 $"Withdraw {10000:N0} denar",
                 new GameMenuOption.OnConditionDelegate(this.HandleTownBankWithdrawDenarMenuOptions_10000),
-                (args => this.WithdrawDenars(10000)),
+                args => this.WithdrawDenars(10000),
                 isRepeatable: true
             );
 
@@ -432,7 +432,7 @@ namespace BannerLord.Banks
                 "town_bank_withdraw_100000_denar",
                 $"Withdraw {100000:N0} denar",
                 new GameMenuOption.OnConditionDelegate(this.HandleTownBankWithdrawDenarMenuOptions_100000),
-                (args => this.WithdrawDenars(100000)),
+                args => this.WithdrawDenars(100000),
                 isRepeatable: true
             );
 
@@ -442,7 +442,7 @@ namespace BannerLord.Banks
                 "town_bank_withdraw_1000000_denar",
                 $"Withdraw {100000:N0} denar",
                 new GameMenuOption.OnConditionDelegate(this.HandleTownBankWithdrawDenarMenuOptions_1000000),
-                (args => this.WithdrawDenars(1000000)),
+                args => this.WithdrawDenars(1000000),
                 isRepeatable: true
             );
 
@@ -452,7 +452,7 @@ namespace BannerLord.Banks
                 "town_bank_withdraw_all_denar",
                 $"Withdraw all denar",
                 new GameMenuOption.OnConditionDelegate(this.HandleTownBankWithdrawDenarMenuOptions_All),
-                (args => this.WithdrawDenars(Int32.MaxValue)),
+                args => this.WithdrawDenars(Int32.MaxValue),
                 isRepeatable: true
             );
 
@@ -463,7 +463,7 @@ namespace BannerLord.Banks
                 "town_bank_withdraw_back",
                 "Back to bank",
                 new GameMenuOption.OnConditionDelegate(BankCampaignBehavior.HandleBackMenuOptions),
-                (args => GameMenu.SwitchToMenu("town_bank")),
+                args => GameMenu.SwitchToMenu("town_bank"),
                 true
             );
         }
